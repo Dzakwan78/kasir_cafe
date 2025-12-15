@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="kode" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+   
+    detail_transaksi.`id_transaksi` AS detail_transaksi_id_transaksi,
+    detail_transaksi.`id_menu` AS detail_transaksi_id_menu,
+    detail_transaksi.`harga` AS detail_transaksi_harga,
+    detail_transaksi.`jumlah` AS detail_transaksi_jumlah,
+    detail_transaksi.`total_harga` AS detail_transaksi_total_harga,
+    
+ 
+    transaksi.`tanggal` AS transaksi_tanggal,
+    transaksi.`id_pegawai` AS transaksi_id_pegawai,
+    transaksi.`id_pelanggan` AS transaksi_id_pelanggan,
+    transaksi.`id_meja`AS transaksi_id_meja,
+    transaksi.`total` AS transaksi_total,
+    transaksi.`bayar` AS transaksi_bayar,
+    transaksi.`kembali` AS transaksi_kembali,
+
+  
+    pelanggan.`nama_pelanggan` AS pelanggan_nama_pelanggan,
+    pegawai.`nama_pegawai` AS pegawai_nama_pegawai,
+    menu.`nama_menu` AS menu_nama_menu,
+    meja.`no_meja` AS meja_no_meja
+    
+FROM
+    `transaksi` transaksi
+    
+INNER JOIN `detail_transaksi` detail_transaksi
+    ON transaksi.`id_transaksi` = detail_transaksi.`id_transaksi`
+    
+INNER JOIN `pelanggan` pelanggan  
+    ON transaksi.`id_pelanggan` = pelanggan.`id_pelanggan`
+    
+INNER JOIN `pegawai` pegawai  
+    ON transaksi.`id_pegawai` = pegawai.`id_pegawai`
+    
+INNER JOIN `meja` meja 
+    ON transaksi.`id_meja` = meja.`id_meja`
+    
+INNER JOIN `menu` menu 
+    ON detail_transaksi.`id_menu` = menu.`id_menu`
+WHERE
+detail_transaksi.`id_transaksi` = $P{kode};]]>
+	</queryString>
+	<field name="detail_transaksi_id_transaksi" class="java.lang.String"/>
+	<field name="detail_transaksi_id_menu" class="java.lang.String"/>
+	<field name="detail_transaksi_harga" class="java.lang.Integer"/>
+	<field name="detail_transaksi_jumlah" class="java.lang.Integer"/>
+	<field name="detail_transaksi_total_harga" class="java.lang.Integer"/>
+	<field name="transaksi_tanggal" class="java.sql.Date"/>
+	<field name="transaksi_id_pegawai" class="java.lang.String"/>
+	<field name="transaksi_id_pelanggan" class="java.lang.String"/>
+	<field name="transaksi_id_meja" class="java.lang.String"/>
+	<field name="transaksi_total" class="java.lang.Integer"/>
+	<field name="transaksi_bayar" class="java.lang.Integer"/>
+	<field name="transaksi_kembali" class="java.lang.Integer"/>
+	<field name="pelanggan_nama_pelanggan" class="java.lang.String"/>
+	<field name="pegawai_nama_pegawai" class="java.lang.String"/>
+	<field name="menu_nama_menu" class="java.lang.String"/>
+	<field name="meja_no_meja" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="78" width="554" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="201" y="11" width="137" height="32" forecolor="#FF9900"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CAFFE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="157" y="43" width="243" height="20"/>
+				<textElement/>
+				<text><![CDATA[Jl. Yos Sudarso, No. 200, Kec. Mantap, Kota Tembok]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="15" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{transaksi_id_pegawai}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="134" y="0" width="46" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[KASIR]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="201" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pegawai_nama_pegawai}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="334" y="0" width="82" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[TANGGAL]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="455" y="0" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{transaksi_tanggal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="33" width="36" height="17"/>
+				<textElement textAlignment="Center">
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[ID CS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="50" width="76" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[NAMA CS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="101" width="76" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[ID MEJA]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="101" y="30" width="100" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{transaksi_id_pelanggan}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="101" y="50" width="100" height="20"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{pelanggan_nama_pelanggan}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="101" y="100" width="100" height="20"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{transaksi_id_meja}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="267" y="101" width="67" height="20"/>
+				<textElement>
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NO MEJA]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="334" y="101" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{meja_no_meja}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="334" y="33" width="82" height="17"/>
+				<textElement>
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NO FAKTUR]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="455" y="33" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{detail_transaksi_id_transaksi}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="2" y="22" width="552" height="1"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="44" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="11" width="76" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[ID MENU]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="124" y="11" width="56" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[MENU]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="237" y="11" width="64" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[HARGA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="352" y="11" width="64" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[QTY]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="11" width="64" height="19"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+			<line>
+				<reportElement x="2" y="30" width="553" height="1"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="27" splitType="Stretch">
+			<textField>
+				<reportElement x="1" y="0" width="100" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{detail_transaksi_id_menu}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="124" y="0" width="91" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{menu_nama_menu}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="237" y="0" width="97" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{detail_transaksi_harga}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="355" y="0" width="89" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{detail_transaksi_jumlah}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="0" width="87" height="20"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{detail_transaksi_total_harga}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="26" width="553" height="1"/>
+			</line>
+		</band>
+	</detail>
+	<summary>
+		<band height="174" splitType="Stretch">
+			<staticText>
+				<reportElement x="355" y="11" width="89" height="19"/>
+				<textElement>
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="30" width="89" height="19"/>
+				<textElement>
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BAYAR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="49" width="89" height="19"/>
+				<textElement>
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[KEMBALIAN]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="455" y="11" width="100" height="19"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{transaksi_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="30" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{transaksi_bayar}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="50" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{transaksi_kembali}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="201" y="134" width="100" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="13"/>
+				</textElement>
+				<text><![CDATA[TERIMA KASIH]]></text>
+			</staticText>
+			<line>
+				<reportElement x="334" y="133" width="220" height="1"/>
+			</line>
+			<line>
+				<reportElement x="-1" y="132" width="181" height="1"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>
