@@ -1,11 +1,14 @@
 package kasir_cafe;
 
 import Aplikasi.Koneksi;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import javax.swing.JOptionPane;
+import java.security.MessageDigest;
+
 
 public class Form_Login extends javax.swing.JFrame { 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Form_Login.class.getName());
@@ -46,11 +49,21 @@ public class Form_Login extends javax.swing.JFrame {
             // ... Sisa isi blok catch (tidak terlihat di gambar) ...
         }
 }
+     public static String passwordHash(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA");
+            md.update(password.getBytes());
+            byte[] rbt = md.digest();
+            StringBuilder sb = new StringBuilder();
 
-    
-    
-    
-    
+        for (byte b : rbt) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }   catch (Exception e) {
+        return null;
+    }
+}  
     
  
     @SuppressWarnings("unchecked")
@@ -133,51 +146,58 @@ public class Form_Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
-       try {
+      String rawPassword = new String(txt_password.getPassword());
+    
+    String hashedPassword = passwordHash(rawPassword); 
+   
+    if (hashedPassword == null) {
+        JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat memproses password.");
+        return; 
+    }
+
+    try {
         Connection c = Koneksi.KoneksiDb();
         Statement s = c.createStatement();
+        
         String sql = "Select * From pengguna Where username='" + txt_username.getText()
-                   + "' And password='" + txt_password.getText() + "'";
+                   + "' And password='" + hashedPassword + "'";
+        
         ResultSet r = s.executeQuery(sql);
 
         // Memeriksa apakah ada hasil (pengguna ditemukan)
         if(r.next()) {  
-            if(txt_username.getText().equals(r.getString("username")) &&
-               txt_password.getText().equals(r.getString("password")) &&
-               r.getString("jenis").equals("admin")) {
+            
+            if(r.getString("jenis").equals("admin")) { // Cukup cek jenis saja
                 Form_DashboardAdmin a = new Form_DashboardAdmin();
-                Form_DashboardAdmin.lb_username.setText(r.getString(1)); // Mengambil kolom ke-1 (Asumsi: username)
-                Form_DashboardAdmin.lb_jenis.setText(r.getString(4));    // Mengambil kolom ke-4 (Asumsi: jenis)
-                Form_DashboardAdmin.lb_idpegawai.setText(r.getString(5)); // Mengambil kolom ke-5 (Asumsi: idpegawai)
+                Form_DashboardAdmin.lb_username.setText(r.getString(1));
+                Form_DashboardAdmin.lb_jenis.setText(r.getString(4));
+                Form_DashboardAdmin.lb_idpegawai.setText(r.getString(5));
                 a.setVisible(true);
-            }else if (txt_username.getText().equals(r.getString("username")) &&
-                       txt_password.getText().equals(r.getString("password")) &&
-                       r.getString("jenis").equals("kasir")) {
-                Form_DashboardKasir a = new Form_DashboardKasir(); // Perhatikan variabel 'a' digunakan lagi
-                Form_DashboardKasir.lb_username.setText(r.getString(1)); // Mengambil kolom ke-1 (Asumsi: username)
-                Form_DashboardKasir.lb_jenis.setText(r.getString(4));    // Mengambil kolom ke-4 (Asumsi: jenis)
-                Form_DashboardKasir.lb_idpegawai.setText(r.getString(5)); // Mengambil kolom ke-5 (Asumsi: idpegawai)
+                
+            } else if (r.getString("jenis").equals("kasir")) {
+                Form_DashboardKasir a = new Form_DashboardKasir();
+                Form_DashboardKasir.lb_username.setText(r.getString(1));
+                Form_DashboardKasir.lb_jenis.setText(r.getString(4));
+                Form_DashboardKasir.lb_idpegawai.setText(r.getString(5));
                 a.setVisible(true);
-            }else if (txt_username.getText().equals(r.getString("username")) &&
-                       txt_password.getText().equals(r.getString("password")) &&
-                       r.getString("jenis").equals("manager")) {
-                Form_DashboardManager a = new Form_DashboardManager(); // Perhatikan variabel 'a' digunakan lagi
-                Form_DashboardManager.lb_username.setText(r.getString(1)); // Mengambil kolom ke-1 (Asumsi: username)
-                Form_DashboardManager.lb_jenis.setText(r.getString(4));    // Mengambil kolom ke-4 (Asumsi: jenis)
-                Form_DashboardManager.lb_idpegawai.setText(r.getString(5)); // Mengambil kolom ke-5 (Asumsi: idpegawai)
+                
+            } else if (r.getString("jenis").equals("manager")) {
+                Form_DashboardManager a = new Form_DashboardManager();
+                Form_DashboardManager.lb_username.setText(r.getString(1));
+                Form_DashboardManager.lb_jenis.setText(r.getString(4));
+                Form_DashboardManager.lb_idpegawai.setText(r.getString(5));
                 a.setVisible(true);
             }
             this.dispose();
-        }else{
-            JOptionPane.showMessageDialog(null, "Periksa kemballi username dan password Anda !");
+        } else {
+            JOptionPane.showMessageDialog(null, "Periksa kemballi username dan password Anda!");
             txt_password.requestFocus();
         }
-      }catch(Exception e){
-          System.out.println("Gagal;");
-      }
-       
-      updateactive();
-     
+    } catch(Exception e) {
+        System.out.println("Gagal: " + e.getMessage());
+    }
+    
+    updateactive();
     }//GEN-LAST:event_btn_loginActionPerformed
 
     private void btn_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelActionPerformed

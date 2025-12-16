@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
+import java.security.MessageDigest;
 
 
 public final class Form_Pengguna extends javax.swing.JFrame {
@@ -138,30 +139,40 @@ public void LoadData() {
     }
 
 public void EditData() {
-    LoadData(); 
+     LoadData(); // Muat data terbaru dari form ke variabel class
+
+    // Validasi data tidak boleh kosong
     if (username.isEmpty() || password.isEmpty() || email.isEmpty() || id_pegawai.isEmpty() || "Tidak dipilih".equals(jenis) || "Tidak dipilih".equals(active)) {
         JOptionPane.showMessageDialog(null, "Semua data pengguna harus diisi!", "Validasi", JOptionPane.WARNING_MESSAGE);
         return;
     }
-
-    // Untuk Menampilkan dialog konfirmasi sebelum update
+    
+    // --- PENANGANAN HASHING DIMULAI DI SINI ---
+    String newPassword = password; 
+    if (newPassword.length() != 40) {
+        String hashedPassword = passwordHash(newPassword);
+        
+        if (hashedPassword == null) {
+             JOptionPane.showMessageDialog(null, "Gagal mengenkripsi password. Operasi dibatalkan.", "Error Hashing", JOptionPane.ERROR_MESSAGE);
+             return;
+        }
+        newPassword = hashedPassword; // Ganti password lama dengan hash baru
+    } 
+    
     int pesan = JOptionPane.showConfirmDialog(null, 
         "Anda yakin ingin mengubah data pengguna **" + username + "**?", 
         "Konfirmasi Perubahan Data", 
         JOptionPane.OK_CANCEL_OPTION);
 
-    // Untuk mengecek apakah pengguna menekan tombol OK (Ya/Setuju)
     if (pesan == JOptionPane.OK_OPTION) {
-        
-        // Untuk UPDATE tabel 'pengguna'
+      
         String sql = "UPDATE pengguna SET username = ?, password = ?, email = ?, jenis = ?, active = ?, update_at = NOW() WHERE id_pegawai = ?";
         
         try (Connection con = Koneksi.KoneksiDb();
               PreparedStatement p = con.prepareStatement(sql)) {
-            
-            // Mengisi PreparedStatement
+           
             p.setString(1, username);
-            p.setString(2, password);
+            p.setString(2, newPassword); 
             p.setString(3, email);
             p.setString(4, jenis);
             p.setString(5, active);
@@ -172,18 +183,21 @@ public void EditData() {
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(null, "Data Pengguna **" + id_pegawai + "** Berhasil Diubah!");
             } else {
-                JOptionPane.showMessageDialog(null, "Data Pengguna Gagal Diubah. Username mungkin tidak ditemukan.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Data Pengguna Gagal Diubah. ID Pegawai mungkin tidak ditemukan.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (SQLException err) {
+            // ... (Kode Log Error Anda)
             Logger.getLogger(Form_Pengguna.class.getName()).log(Level.SEVERE, "Error Ubah Data Pengguna", err); 
             JOptionPane.showMessageDialog(null, "Error Ubah Data Pengguna: " + err.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         } finally {
+            // Selalu refresh tabel dan reset form setelah mencoba operasi
             GetDataPengguna(); 
             Kosongkan();
             Nonaktif();
             btn_tambah.setEnabled(true);
         }
     } else {
+        // Jika pengguna memilih CANCEL, berikan feedback dan reset form
         JOptionPane.showMessageDialog(null, "Perubahan data dibatalkan.", "Dibatalkan", JOptionPane.INFORMATION_MESSAGE);
         Kosongkan();
         Nonaktif();
@@ -306,6 +320,22 @@ public void Nonaktif() {
             JOptionPane.showMessageDialog(null, "Gagal mencari pegawai: " + e.getMessage());
         }
     }
+    
+    public static String passwordHash(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA");
+            md.update(password.getBytes());
+            byte[] rbt = md.digest();
+            StringBuilder sb = new StringBuilder();
+
+        for (byte b : rbt) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }   catch (Exception e) {
+        return null;
+    }
+}
    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -711,33 +741,39 @@ public void Nonaktif() {
     private void btn_simpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_simpanActionPerformed
         LoadData(); // Muat semua data dari field ke variabel global
 
-        if (username.isEmpty() || password.isEmpty() || email.isEmpty() || id_pegawai.isEmpty() || jenis.equals("Tidak dipilih")) {
-            JOptionPane.showMessageDialog(null, "Semua kolom wajib diisi!");
-            return;
-        }
+    if (username.isEmpty() || password.isEmpty() || email.isEmpty() || id_pegawai.isEmpty() || jenis.equals("Tidak dipilih")) {
+        JOptionPane.showMessageDialog(null, "Semua kolom wajib diisi!");
+        return;
+    }
 
-        String sql = "INSERT INTO pengguna (username, password, email, jenis, id_pegawai, active, created_at, update_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+    String hashedPassword = passwordHash(password);
+   
+    if (hashedPassword == null) {
+        JOptionPane.showMessageDialog(null, "Gagal mengenkripsi password. Operasi dibatalkan.");
+        return;
+    }
+
+    String sql = "INSERT INTO pengguna (username, password, email, jenis, id_pegawai, active, created_at, update_at) VALUES (?, ?, ?, ?, ?, '1', NOW(), NOW())";
+    
+    try (Connection c = Koneksi.KoneksiDb();
+          PreparedStatement p = c.prepareStatement(sql)) {
         
-        try (Connection c = Koneksi.KoneksiDb();
-             PreparedStatement p = c.prepareStatement(sql)) {
-            
-            p.setString(1, username);
-            p.setString(2, password);
-            p.setString(3, email);
-            p.setString(4, jenis);
-            p.setString(5, id_pegawai);
-            p.setString(6, active);
-            
-            p.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Data Berhasil Disimpan");
-            
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menyimpan data: " + e.getMessage());
-        } finally {
-            GetDataPengguna();
-            Kosongkan();
-            Nonaktif();
-        }      
+        p.setString(1, username);
+        p.setString(2, hashedPassword); 
+        p.setString(3, email);
+        p.setString(4, jenis);
+        p.setString(5, id_pegawai);
+        
+        p.executeUpdate();
+        JOptionPane.showMessageDialog(null, "Data Berhasil Disimpan");
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menyimpan data: " + e.getMessage());
+    } finally {
+        GetDataPengguna();
+        Kosongkan();
+        Nonaktif();
+    }
     }//GEN-LAST:event_btn_simpanActionPerformed
 
     private void btn_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_hapusActionPerformed
