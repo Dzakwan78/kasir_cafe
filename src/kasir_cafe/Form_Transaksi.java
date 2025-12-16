@@ -1123,24 +1123,27 @@ public class Form_Transaksi extends javax.swing.JFrame {
     private void btn_cetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cetakActionPerformed
          String nota = JOptionPane.showInputDialog("Masukan ID Transaksi");
     Connection con = null;
-    try {
+    try{
         Class.forName("com.mysql.cj.jdbc.Driver");
         String DB = "jdbc:mysql://localhost/db_cafe";
         String user = "root";
         String pass = "";
+
         con = DriverManager.getConnection(DB, user, pass);
         Statement stat = con.createStatement();
+
         try {
             String report = ("src\\kasir_cafe\\nota_kasir.jrxml");
             HashMap hash = new HashMap();
             hash.put("kode", nota);
-            JasperReport jReport = JasperCompileManager.compileReport(report);
-            JasperPrint jPrint = JasperFillManager.fillReport(jReport, hash, con);
-            JasperViewer.viewReport(jPrint, false);
-        } catch (Exception ex) {
+            JasperReport jasperReport = JasperCompileManager.compileReport(report);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, hash, con);
+            JasperViewer.viewReport(jasperPrint, false);
+        }catch (Exception ex) {
             Logger.getLogger(Form_Transaksi.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } catch (Exception e) {
+    }catch (Exception e) {
+
     }
     }//GEN-LAST:event_btn_cetakActionPerformed
 

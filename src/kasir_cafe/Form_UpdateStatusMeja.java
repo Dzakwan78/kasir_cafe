@@ -81,7 +81,6 @@ public final class Form_UpdateStatusMeja extends javax.swing.JFrame {
     no_meja = txt_nomeja.getText();
     jenis_meja = (String)cb_kategori.getSelectedItem();
     
-    // Pastikan jml_kursi dan status hanya berisi angka
     if (txt_jumlahkursi.getText().isEmpty() || cb_status.getSelectedItem()==null){
         jml_kursi = "0"; // Defaultkan ke 0 jika kosong
         status = "0";
