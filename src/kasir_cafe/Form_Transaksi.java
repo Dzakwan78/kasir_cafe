@@ -31,28 +31,31 @@ public class Form_Transaksi extends javax.swing.JFrame {
     java.util.Date tglsekarang = new java.util.Date();
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private String tanggal = format.format(tglsekarang);
-    private DefaultTableModel model;
-    private DefaultTableModel model2;
-    
+    private DefaultTableModel model; // Model Tabel Menu
+    private DefaultTableModel model2; // Model Tabel Keranjang
+
     public Form_Transaksi() {
         initComponents();
         Nonaktif(); 
 
+        // Model untuk Daftar Menu yang tersedia
         model = new DefaultTableModel();
         tabel_menu.setModel(model);
         model.addColumn("ID Menu");
         model.addColumn("Nama Menu");
-        model.addColumn("Kategori");
+        model.addColumn("Kategori"); // Tetap kategori jika di DB kolom ke-3 adalah jenis/kategori
         model.addColumn("Harga");
         model.addColumn("Stok");
 
+        // Model untuk Keranjang Belanja (Detail Transaksi sementara)
         model2 = new DefaultTableModel();
         tabel_dettransaksi.setModel(model2);
         model2.addColumn("ID Transaksi");
         model2.addColumn("ID Menu");
-        model2.addColumn("Harga");
-        model2.addColumn("Jumlah");
-        model2.addColumn("Harga Total");
+        model2.addColumn("Nama Menu"); // Kolom Baru: Indeks 2
+        model2.addColumn("Harga");     // Indeks 3
+        model2.addColumn("Jumlah");    // Indeks 4
+        model2.addColumn("Total");     // Indeks 5
         
         SetJam(); 
         Utama();  
@@ -61,10 +64,12 @@ public class Form_Transaksi extends javax.swing.JFrame {
         txt_tanggal.setText(tanggal);      
         txt_totalbayar.setText("0");       
         txt_bayar.setText("0");            
-        txt_kembali.setText("0");         
+        txt_kembali.setText("0");
 
+        // Pengaturan awal komponen
         txt_jumlah.setEnabled(false);      
-        txt_bayar.setEnabled(false);       
+        txt_bayar.setEnabled(false);
+        txt_namamenu.setEnabled(false);
         btn_tambah2.setEnabled(false);     
         btn_kurang.setEnabled(false);      
         btn_proses.setEnabled(false);      
@@ -75,117 +80,96 @@ public class Form_Transaksi extends javax.swing.JFrame {
     } 
     
     public void GetDataMenu() {
-        // Baris 67: Membersihkan data vektor dari model tabel
-        model.getDataVector().removeAllElements();
-        // Baris 68: Memberitahu tabel bahwa data telah berubah
-        model.fireTableDataChanged();
+        model.setRowCount(0); // Cara lebih bersih menghapus data tabel
 
         try {
-            
-            Statement stat = (Statement) Koneksi.KoneksiDb().createStatement();
-            // Baris 71: Query SQL untuk mengambil semua data dari tabel 'menu'
-            String sql = "Select * from menu";
-            // Baris 72: Mengeksekusi query dan menyimpan hasilnya di ResultSet
+            Connection con = Koneksi.KoneksiDb();
+            Statement stat = con.createStatement();
+            // Query mengambil data dari tabel 'menu'
+            String sql = "SELECT * FROM menu";
             ResultSet rs = stat.executeQuery(sql);
 
             while(rs.next()){
-                // Baris 75: Membuat array objek untuk menampung satu baris data
                 Object obj[] = new Object[5];
-                // Baris 76-80: Mengambil nilai dari kolom ResultSet dan menyimpannya di array
                 obj[0] = rs.getString("id_menu");
-                obj[1] = rs.getString("nama_menu");
-                obj[2] = rs.getString("jenis"); 
+                obj[1] = rs.getString("nama_menu"); // Memastikan menggunakan nama_menu
+                obj[2] = rs.getString("jenis");     // Jika di DB nama kolomnya 'jenis'
                 obj[3] = rs.getString("harga");
                 obj[4] = rs.getString("stok");
 
-                // Baris 82: Menambahkan baris data ke model tabel
                 model.addRow(obj);
             }
-            // Baris 84: Menutup objek ResultSet
             rs.close();
-            // Baris 85: Menutup objek Statement
             stat.close();
-
         } catch(SQLException error) {
-            // Baris 87: Menangani error SQL dan menampilkannya di dialog pesan
-            javax.swing.JOptionPane.showMessageDialog(null, error.getMessage());
+            JOptionPane.showMessageDialog(null, "Gagal ambil data menu: " + error.getMessage());
         }
     }
     
-    public void SelectDataMenu() { // Baris 91
-        int i = tabel_menu.getSelectedRow(); // Baris 92
-        
-        if (i == -1) { // Baris 93
-            return; // Baris 95
+    public void SelectDataMenu() {
+        int i = tabel_menu.getSelectedRow();
+        if (i == -1) {
+            return;
         }
-        // Baris 96: Mengambil data dari tabel yang dipilih dan mengaturnya ke komponen teks
-        txt_idmenu.setText(""+model.getValueAt(i, 0)); 
-        txt_harga.setText(""+model.getValueAt(i, 3)); 
-    } // Penutup kurung kurawal SelectDataMenu()
+        // Ambil data dari tabel berdasarkan baris yang diklik
+        txt_idmenu.setText("" + model.getValueAt(i, 0));
+        txt_namamenu.setText("" + model.getValueAt(i, 1));
+        txt_harga.setText("" + model.getValueAt(i, 3)); 
+        txt_jumlah.setEnabled(true);
+        btn_tambah2.setEnabled(true);
+        txt_jumlah.requestFocus();
+    }
 
-    // Baris 101
     public void GetDetaDetTransaksi() {
-        // Baris 102: Mendapatkan model tabel dari tabel_dettransaksi
-        DefaultTableModel model = (DefaultTableModel)tabel_dettransaksi.getModel();
-        
-        // Baris 103: Menambahkan baris baru ke model tabel
-        model.addRow(new Object[] {
-            // Baris 105-108: Mengambil nilai dari komponen teks untuk dijadikan data baris
+        int rowMenu = tabel_menu.getSelectedRow();
+        if (rowMenu == -1) {
+            JOptionPane.showMessageDialog(null, "Pilih menu terlebih dahulu di tabel menu!");
+            return;
+        }
+
+        // Ambil nama menu dari tabel menu (kolom indeks 1)
+        String namaMenu = tabel_menu.getValueAt(rowMenu, 1).toString();
+
+        model2.addRow(new Object[] {
             txt_idtransaksi.getText(),
             txt_idmenu.getText(),
+            namaMenu,           // Nama Menu tampil di kolom indeks 2 keranjang
             txt_harga.getText(),
             txt_jumlah.getText(),
             txt_hargatotal.getText()
         });
-    } // Penutup kurung kurawal GetDetaDetTransaksi()
+    }
     
     public void IdOtomatis() {
-    try {
-        Statement st = Koneksi.KoneksiDb().createStatement();
-        
-        // Menggunakan LIMIT 1 untuk optimasi, karena kita hanya butuh 1 baris (yang terbaru)
-        String sql = "SELECT id_transaksi FROM transaksi ORDER BY id_transaksi DESC LIMIT 1";
+        try {
+            Statement st = Koneksi.KoneksiDb().createStatement();
+            String sql = "SELECT id_transaksi FROM transaksi ORDER BY id_transaksi DESC LIMIT 1";
+            ResultSet rs = st.executeQuery(sql);
 
-        ResultSet rs = st.executeQuery(sql);
+            if (rs.next()) {
+                String id_str = rs.getString("id_transaksi").substring(2);
+                int AN_int = (Integer.parseInt(id_str)) + 1;
+                String AN_str = String.valueOf(AN_int);
+                String nol = "";
 
-        if (rs.next()) {
-            // Mengambil ID transaksi dan memotong 2 karakter pertama ("TR")
-            String id_str = rs.getString("id_transaksi").substring(2);
-            
-            // Mengubah sisa string menjadi integer, menambah 1
-            int AN_int = (Integer.parseInt(id_str)) + 1;
-            
-            // --- PERBAIKAN LOGIKA: Ubah int menjadi String untuk menghitung panjang ---
-            String AN_str = String.valueOf(AN_int);
-            String nol = "";
-
-            // Logika untuk menambahkan nol di depan angka
-            if (AN_str.length() == 1) { // Contoh: 1 -> 001
-                nol = "00";
-            } else if (AN_str.length() == 2) { // Contoh: 10 -> 010
-                nol = "0";
-            } 
-            // Jika panjangnya 3 atau lebih (misal 100), nol tetap ""
-
-            // Menggabungkan prefix "TR", nol, dan angka baru
-            txt_idtransaksi.setText("TR" + nol + AN_str);
-            
-            rs.close(); // Tutup ResultSet
-            st.close(); // Tutup Statement
-            
-        } else { // Jika belum ada data transaksi
-            txt_idtransaksi.setText("TR001");
+                if (AN_str.length() == 1) {
+                    nol = "00";
+                } else if (AN_str.length() == 2) {
+                    nol = "0";
+                } 
+                txt_idtransaksi.setText("TR" + nol + AN_str);
+            } else {
+                txt_idtransaksi.setText("TR001");
+            }
+            rs.close();
+            st.close();
+        } catch(SQLException error) {
+            JOptionPane.showMessageDialog(null, "Error ID Otomatis: " + error.getMessage());
         }
-
-    } catch(SQLException error) {
-        // Menangani error SQL
-        JOptionPane.showMessageDialog(null, "Error SQL saat membuat ID Otomatis: " + error.getMessage());
     }
-}
     
     public void Nonaktif() {
-        // Baris 139: Menonaktifkan komponen teks input (setEnabled(false))
-        txt_idtransaksi.setEnabled(false);
+        txt_idtransaksi.setEditable(false);
         txt_tanggal.setEnabled(false);
         txt_jam.setEnabled(false);
         txt_idpegawai.setEnabled(false);
@@ -199,37 +183,27 @@ public class Form_Transaksi extends javax.swing.JFrame {
     }
     
     public void Cari() {
-        model.getDataVector().removeAllElements();
-        model.fireTableDataChanged();
+        model.setRowCount(0);
         
-        try { // Baris 156
-            // Baris 156: Mendapatkan koneksi database
+        try {
             Connection con = Koneksi.KoneksiDb();
-            // Baris 157: Membuat objek Statement
             Statement st = con.createStatement();
-            
-            // Baris 158-159: Query SQL untuk mencari menu berdasarkan ID atau Nama Menu
-            String sql = "Select * from menu Where id_menu like '%" + txt_carimenu.getText() + "%'" +
-                         " or nama_menu like '%" + txt_carimenu.getText() + "%'";
-            
-            // Baris 161: Mengeksekusi query
+            // Pencarian berdasarkan ID atau Nama Menu
+            String sql = "SELECT * FROM menu WHERE id_menu LIKE '%" + txt_carimenu.getText() + "%'" +
+                         " OR nama_menu LIKE '%" + txt_carimenu.getText() + "%'";
             ResultSet rs = st.executeQuery(sql);
             
-            // Baris 163: Loop melalui hasil query
             while(rs.next()){
-                Object ob[] = new Object[5]; // Baris 164
-                // Baris 165-169: Mengambil data dari ResultSet
-                ob[0] = rs.getString(1); // Kolom 1
-                ob[1] = rs.getString(2); // Kolom 2
-                ob[2] = rs.getString(3); // Kolom 3
-                ob[3] = rs.getString(4); // Kolom 4
-                ob[4] = rs.getString(5); // Kolom 5
-                
+                Object ob[] = new Object[5];
+                ob[0] = rs.getString("id_menu");
+                ob[1] = rs.getString("nama_menu"); // Perbaikan: Menggunakan nama kolom string agar aman
+                ob[2] = rs.getString("jenis");
+                ob[3] = rs.getString("harga");
+                ob[4] = rs.getString("stok");
                 model.addRow(ob);
             }
-        } catch(SQLException e) { // Baris 172
-            // Baris 173: Menangani error SQL dengan mencetak stack trace (terpotong, diasumsikan System.out.println(e); atau sejenisnya)
-            System.out.println(e); // Baris 174
+        } catch(SQLException e) {
+            System.out.println("Error Cari: " + e);
         }
     }
     
@@ -237,70 +211,52 @@ public class Form_Transaksi extends javax.swing.JFrame {
         ActionListener taskPerform = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                String nol_jam ="", nol_menit = "", nol_detik ="";
-                
-                java.util.Date dateTime = new java.util.Date();
-                int nilai_jam = dateTime.getHours();
-                int nilai_menit = dateTime.getMinutes();
-                int nilai_detik = dateTime.getSeconds();
-                
-                
-                if(nilai_jam <= 9) nol_jam = "0";
-                if(nilai_menit <= 9) nol_menit = "0";
-                if(nilai_detik <= 9) nol_detik = "0";
-
-                String jam = nol_jam + Integer.toString(nilai_jam);
-                String menit = nol_menit + Integer.toString(nilai_menit);
-                String detik = nol_detik + Integer.toString(nilai_detik);
-                
-                txt_jam.setText(jam + ":" + menit + ":" + detik + "");
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                int jam = cal.get(java.util.Calendar.HOUR_OF_DAY);
+                int menit = cal.get(java.util.Calendar.MINUTE);
+                int detik = cal.get(java.util.Calendar.SECOND);
+                txt_jam.setText(String.format("%02d:%02d:%02d", jam, menit, detik));
             }
         };
         new Timer(1000, taskPerform).start();
     }
     
     public void TotalBiaya() { 
-        int jumlahBaris = tabel_dettransaksi.getRowCount(); // Baris 203
+        int jumlahBaris = tabel_dettransaksi.getRowCount();
         int totalBiaya = 0; 
-        int jumlah, harga; 
         
-        for (int i = 0; i < jumlahBaris; i++) { // Baris 206
-            // Baris 207: Mengambil nilai kolom ke-2 (Jumlah) dari tabel, dikonversi ke String, lalu ke int
-            jumlah = Integer.parseInt(tabel_dettransaksi.getValueAt(i, 2).toString());
-            // Baris 208: Mengambil nilai kolom ke-3 (Harga) dari tabel, dikonversi ke String, lalu ke int
-            harga = Integer.parseInt(tabel_dettransaksi.getValueAt(i, 3).toString());
-            // Baris 209: Menghitung total biaya
-            totalBiaya = totalBiaya + (jumlah * harga);
+        for (int i = 0; i < jumlahBaris; i++) {
+            // Sesuai indeks model2: Harga(3), Jumlah(4)
+            int harga = Integer.parseInt(tabel_dettransaksi.getValueAt(i, 3).toString());
+            int jumlah = Integer.parseInt(tabel_dettransaksi.getValueAt(i, 4).toString());
+            totalBiaya += (harga * jumlah);
         }
-        
         txt_totalbayar.setText(String.valueOf(totalBiaya));
-    } // Baris 213: Penutup kurung kurawal TotalBiaya()
+    }
 
-    // Baris 214: Awal definisi metode TambahTransaksi()
     public void TambahTransaksi() {
-        int jumlah, harga, total; // Baris 215: Deklarasi variabel
-        
-        // Baris 216: Mengambil nilai dari txt_jumlah dan mengkonversinya ke int
-        jumlah = Integer.valueOf(txt_jumlah.getText());
-        // Baris 217: Mengambil nilai dari txt_harga dan mengkonversinya ke int
-        harga = Integer.valueOf(txt_harga.getText());
-        // Baris 218: Menghitung total harga per item
-        total = jumlah * harga;
-        
-        // Baris 220: Mengatur hasil perhitungan ke komponen teks harga total
-        txt_hargatotal.setText(String.valueOf(total));
-       
-        GetDetaDetTransaksi();
-        TotalBiaya();
-        Kosongkan2();
+        if(txt_idmenu.getText().equals("") || txt_jumlah.getText().equals("")) {
+             JOptionPane.showMessageDialog(null, "Pilih Menu dan Isi Jumlah!");
+        } else {
+            try {
+                int jumlah = Integer.parseInt(txt_jumlah.getText());
+                int harga = Integer.parseInt(txt_harga.getText());
+                int total = jumlah * harga;
+                
+                txt_hargatotal.setText(String.valueOf(total));
+               
+                GetDetaDetTransaksi();
+                TotalBiaya();
+                Kosongkan2();
+                btn_proses.setEnabled(true);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Masukkan jumlah angka yang valid!");
+            }
+        }
     }
     
     public void Kosong() {
-        DefaultTableModel model = (DefaultTableModel)tabel_dettransaksi.getModel();
-        
-        while(model.getRowCount() > 0){
-            model.removeRow(0);
-        }
+        model2.setRowCount(0);
     }
 
     public void Utama() {
@@ -310,6 +266,7 @@ public class Form_Transaksi extends javax.swing.JFrame {
         txt_idmeja.setText("");
         txt_harga.setText("");
         txt_jumlah.setText("");
+        txt_hargatotal.setText("");
         IdOtomatis();
     }
     
@@ -318,12 +275,13 @@ public class Form_Transaksi extends javax.swing.JFrame {
         txt_totalbayar.setText("0");
         txt_bayar.setText("0");
         txt_kembali.setText("0");
-    } // Penutup kurung kurawal Kosongkan()
+    }
 
     public void Kosongkan2() {
         txt_idmenu.setText("");
         txt_harga.setText("");
         txt_jumlah.setText("");
+        txt_hargatotal.setText("");
     }
    
     @SuppressWarnings("unchecked")
@@ -373,6 +331,8 @@ public class Form_Transaksi extends javax.swing.JFrame {
         txt_kembali = new javax.swing.JTextField();
         btn_tambah = new javax.swing.JButton();
         btn_cetak = new javax.swing.JButton();
+        txt_namamenu = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -572,6 +532,8 @@ public class Form_Transaksi extends javax.swing.JFrame {
             }
         });
 
+        jLabel18.setText("Nama Menu :");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -614,17 +576,24 @@ public class Form_Transaksi extends javax.swing.JFrame {
                             .addComponent(txt_harga, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txt_idmenu, javax.swing.GroupLayout.Alignment.LEADING))
                         .addGap(40, 40, 40)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn_proses)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(btn_tambah2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btn_kurang, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(64, 64, 64)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel12)
-                            .addComponent(jLabel13)
-                            .addComponent(jLabel14))
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btn_proses)
+                                    .addGroup(jPanel4Layout.createSequentialGroup()
+                                        .addComponent(btn_tambah2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(btn_kurang, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(64, 64, 64)
+                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel12)
+                                    .addComponent(jLabel13)))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel14)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txt_totalbayar, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
@@ -715,7 +684,9 @@ public class Form_Transaksi extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(txt_hargatotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel11))
+                                    .addComponent(jLabel11)
+                                    .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel18))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel4Layout.createSequentialGroup()
@@ -738,7 +709,7 @@ public class Form_Transaksi extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(27, 27, 27)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -953,75 +924,103 @@ public class Form_Transaksi extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_kurangActionPerformed
 
     private void btn_prosesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_prosesActionPerformed
-       DefaultTableModel model = (DefaultTableModel)tabel_dettransaksi.getModel();
+       DefaultTableModel model = (DefaultTableModel) tabel_dettransaksi.getModel();
 
-        String notrans = txt_idtransaksi.getText();
-        String tanggal = txt_tanggal.getText();
-        String idpegawai = txt_idpegawai.getText();
-        String idpel = txt_idpelanggan.getText();
-        String meja = txt_idmeja.getText();
-        String subtotal = txt_hargatotal.getText();
-        String totalbayar = txt_totalbayar.getText();
-        String bayar = txt_bayar.getText();
-        String kembali = txt_kembali.getText();
+        // Ambil data dari TextField
+        String notrans     = txt_idtransaksi.getText();
+        String tanggal     = txt_tanggal.getText();
+        String idpegawai   = txt_idpegawai.getText();
+        String idpel       = txt_idpelanggan.getText();
+        String meja        = txt_idmeja.getText();
+
+        // Ambil Nama Menu (Jika ini ringkasan, pastikan txt_namamenu tidak kosong)
+        String menuSummary = txt_namamenu.getText().isEmpty() ? "-" : txt_namamenu.getText();
+
+        // Validasi Angka: Jika kosong atau bukan angka, beri nilai 0 agar database tidak error
+        // Menggunakan replace untuk membersihkan karakter non-angka (seperti titik ribuan atau Rp)
+        String subtotal   = txt_hargatotal.getText().replaceAll("[^0-9]", "");
+        String totalbayar  = txt_totalbayar.getText().replaceAll("[^0-9]", "");
+        String bayar       = txt_bayar.getText().replaceAll("[^0-9]", "");
+        String kembali     = txt_kembali.getText().replaceAll("[^0-9]", "");
+
+        // Jika hasil replace menyebabkan string kosong, set ke "0"
+        if (subtotal.isEmpty()) subtotal = "0";
+        if (totalbayar.isEmpty()) totalbayar = "0";
+        if (bayar.isEmpty()) bayar = "0";
+        if (kembali.isEmpty()) kembali = "0";
 
         try {
-            // BLOK 1: INSERT DATA KE TABEL 'transaksi' (TIDAK ADA PERUBAHAN DI SINI)
+            // BLOK 1: INSERT DATA KE TABEL 'transaksi' (Master)
             Connection c = Koneksi.KoneksiDb();
-            String sql = "Insert Into transaksi Values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement p = c.prepareStatement(sql);
-            p.setString(1, notrans);
-            p.setString(2, tanggal);
-            p.setString(3, idpegawai);
-            p.setString(4, idpel);
-            p.setString(5, meja);
-            p.setString(6, subtotal);
-            p.setString(7, totalbayar);
-            p.setString(8, bayar);
-            p.setString(9, kembali);
-            p.executeUpdate();
-            p.close();
+            // Pastikan urutan kolom di database sesuai: id, tgl, id_peg, id_pel, meja, menu, sub, total, bayar, kembali
+            String sqlMaster = "INSERT INTO transaksi VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement p1 = c.prepareStatement(sqlMaster);
+
+            p1.setString(1, notrans);
+            p1.setString(2, tanggal);
+            p1.setString(3, idpegawai);
+            p1.setString(4, idpel);
+            p1.setString(5, meja);
+            p1.setString(6, menuSummary);
+            p1.setString(7, subtotal);
+            p1.setString(8, totalbayar);
+            p1.setString(9, bayar);
+            p1.setString(10, kembali);
+
+            p1.executeUpdate();
+            p1.close();
+            System.out.println("Data Master Transaksi Berhasil Disimpan");
+
         } catch (Exception ex) {
-            Logger.getLogger(Form_Transaksi.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Gagal simpan transaksi: " + ex.getMessage());
+            Logger.getLogger(Form_Transaksi.class.getName()).log(Level.SEVERE, "Error Blok 1", ex);
         }
 
         try {
-            // BLOK 2: INSERT DATA KE TABEL 'detail_transaksi'
+            // BLOK 2: INSERT DATA KE TABEL 'detail_transaksi' (Looping dari Tabel GUI)
             Connection c = Koneksi.KoneksiDb();
             int baris = tabel_dettransaksi.getRowCount();
 
-            String sql = "INSERT INTO detail_transaksi (id_transaksi, id_menu, harga, jumlah, total_harga) VALUES (?, ?, ?, ?, ?)";
+            String sqlDetail = "INSERT INTO detail_transaksi (id_transaksi, id_menu, nama_menu, harga, jumlah, total_harga) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement p2 = c.prepareStatement(sqlDetail);
 
             for (int i = 0; i < baris; i++) {
+                p2.setString(1, notrans);
+                // Mengambil data dari kolom tabel (Pastikan indeks kolom 1, 2, 3, 4, 5 sesuai dengan posisi di JTable Anda)
+                p2.setObject(2, tabel_dettransaksi.getValueAt(i, 1)); // ID Menu
+                p2.setObject(3, tabel_dettransaksi.getValueAt(i, 2)); // Nama Menu
+                p2.setObject(4, tabel_dettransaksi.getValueAt(i, 3)); // Harga Satuan
+                p2.setObject(5, tabel_dettransaksi.getValueAt(i, 4)); // Jumlah Beli
+                p2.setObject(6, tabel_dettransaksi.getValueAt(i, 5)); // Subtotal per Item
 
-                PreparedStatement p = c.prepareStatement(sql);
-
-                p.setString(1, notrans);
-                p.setObject(2, tabel_dettransaksi.getValueAt(i, 1));
-                p.setObject(3, tabel_dettransaksi.getValueAt(i, 2));
-                p.setObject(4, tabel_dettransaksi.getValueAt(i, 3));
-                p.setObject(5, tabel_dettransaksi.getValueAt(i, 4));
-
-                p.executeUpdate();
-                p.close(); 
+                p2.executeUpdate();
             }
-            
+            p2.close();
+            JOptionPane.showMessageDialog(null, "Transaksi Berhasil Diproses!");
+
         } catch (Exception ex) {
-            Logger.getLogger(Form_Transaksi.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    Kosongkan();
-    Utama();
-    Kosong();
-    IdOtomatis();  
-    GetDataMenu();
-    txt_jumlah.setEnabled(false);
-    txt_bayar.setEnabled(false);
-    btn_tambah2.setEnabled(false);
-    btn_kurang.setEnabled(false);
-    btn_proses.setEnabled(false);
-    btn_carimeja.setEnabled(false);
-    btn_caripelanggan.setEnabled(false);
-    txt_carimenu.setEnabled(false);
+            JOptionPane.showMessageDialog(null, "Gagal simpan detail: " + ex.getMessage());
+            Logger.getLogger(Form_Transaksi.class.getName()).log(Level.SEVERE, "Error Blok 2", ex);
+        }
+
+        // --- AKHIR DARI PROSES DATABASE ---
+
+        // Reset Form dan Komponen UI
+        Kosongkan();
+        Utama();
+        Kosong();
+        IdOtomatis();  
+        GetDataMenu();
+
+        // Pengaturan Status Komponen
+        txt_jumlah.setEnabled(false);
+        txt_bayar.setEnabled(false);
+        btn_tambah2.setEnabled(false);
+        btn_kurang.setEnabled(false);
+        btn_proses.setEnabled(false);
+        btn_carimeja.setEnabled(false);
+        btn_caripelanggan.setEnabled(false);
+        txt_carimenu.setEnabled(false);
     }//GEN-LAST:event_btn_prosesActionPerformed
 
     private void lb_catatantransaksiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lb_catatantransaksiMouseClicked
@@ -1170,6 +1169,7 @@ public class Form_Transaksi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -1204,6 +1204,7 @@ public class Form_Transaksi extends javax.swing.JFrame {
     private javax.swing.JTextField txt_jam;
     private javax.swing.JTextField txt_jumlah;
     private javax.swing.JTextField txt_kembali;
+    private javax.swing.JTextField txt_namamenu;
     private javax.swing.JTextField txt_tanggal;
     private javax.swing.JTextField txt_totalbayar;
     // End of variables declaration//GEN-END:variables

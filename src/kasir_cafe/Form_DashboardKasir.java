@@ -60,7 +60,6 @@ public class Form_DashboardKasir extends javax.swing.JFrame {
         }
     }; // Penutup ActionListener
     
-    // Baris 49: Membuat Timer baru dengan delay 1000ms (1 detik) dan menjalankannya
     new Timer(1000, taskPerformer).start();
 } // Penutup method setJam()
     
@@ -79,7 +78,7 @@ public class Form_DashboardKasir extends javax.swing.JFrame {
         p.executeUpdate();
         p.close();
     } catch (Exception e) {
-        // ... Sisa isi blok catch (tidak terlihat di gambar) ...
+        
     }
 }  
     @SuppressWarnings("unchecked")
@@ -274,7 +273,7 @@ public class Form_DashboardKasir extends javax.swing.JFrame {
 
         lb_jenis.setBackground(new java.awt.Color(102, 204, 255));
         lb_jenis.setFont(new java.awt.Font("Segoe UI Black", 0, 14)); // NOI18N
-        lb_jenis.setForeground(new java.awt.Color(51, 0, 255));
+        lb_jenis.setForeground(new java.awt.Color(153, 255, 255));
         lb_jenis.setText("JABATAN");
 
         lb_tentang.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N

@@ -144,7 +144,8 @@ public class Daftar_Pegawai extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tabel_pegawaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabel_pegawaiMouseClicked
-       int i = tabel_pegawai.getSelectedRow();
+       // Untuk Mengambil Data Pegawai dan Ditampilkan di dalam tabel
+        int i = tabel_pegawai.getSelectedRow();
 
         String id = tabel_pegawai.getValueAt(i, 0).toString();
         String nama = tabel_pegawai.getValueAt(i, 1).toString();

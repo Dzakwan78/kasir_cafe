@@ -88,12 +88,10 @@ public class Form_DashboardManager extends javax.swing.JFrame {
         // Menutup statement
         p.close();
 
-        // Perlu ditambahkan con.close() di sini berdasarkan praktik terbaik
-        // con.close(); 
     
     // Menangkap exception jika terjadi kesalahan dalam proses database
     } catch (Exception e) {
-        // ... Sisa isi blok catch (tidak terlihat di gambar) ...
+        
     }
 }
  

@@ -7,14 +7,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.Date; // Tambahan: Import java.util.Date
+import java.util.Date; 
 import javax.swing.Timer;
-import javax.swing.JFrame; // Tambahan: import untuk JFrame
+import javax.swing.JFrame; 
 import kasir_cafe.Form_Login;
 
 
 public class Form_DashboardAdmin extends javax.swing.JFrame {
-    // Deklarasi Variabel
+    // Untuk Deklarasi Variabel
     java.util.Date tglsekarang = new java.util.Date();
     private SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy", Locale.getDefault());
     private String tanggal = format.format(tglsekarang);
@@ -24,8 +24,7 @@ public class Form_DashboardAdmin extends javax.swing.JFrame {
    
     public Form_DashboardAdmin() {
         initComponents();
-        lb_tanggal.setText(tanggal); // lbl_tanggal tampaknya adalah JLabel/field yang menampilkan tanggal
-        
+        lb_tanggal.setText(tanggal);
         setJam(); // Memanggil method setJam()
     }
     public final void setJam(){
@@ -73,8 +72,7 @@ public class Form_DashboardAdmin extends javax.swing.JFrame {
         
         // Menyiapkan statement SQL
         PreparedStatement p = con.prepareStatement(sql);
-        
-        // Mengisi placeholder (?) pada query
+       
         p.setString(1, "1"); // Mengatur kolom 'active' menjadi nilai "1" (aktif)
         p.setString(2, user); // Mengatur kolom 'username' sesuai dengan user yang didapat
 
@@ -87,8 +85,7 @@ public class Form_DashboardAdmin extends javax.swing.JFrame {
     
     // Menangkap exception jika terjadi kesalahan dalam proses database
     } catch (Exception e) {
-        // e.printStackTrace(); // Biasanya ada penanganan error di sini, 
-                             // namun baris ini tidak terlihat di gambar
+        
     }
 }
     

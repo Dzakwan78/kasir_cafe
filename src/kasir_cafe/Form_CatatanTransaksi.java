@@ -16,22 +16,28 @@ public class Form_CatatanTransaksi extends javax.swing.JFrame {
     
     public Form_CatatanTransaksi() {
         initComponents();
+        
+        // Pengaturan Tanggal Sistem
         Date date = new Date();
         SimpleDateFormat s = new SimpleDateFormat("dd-MM-yyyy");
         txt_tanggal.setText(s.format(date));
+        
         this.setLocationRelativeTo(null);
+       
         model = new DefaultTableModel();
         tabel_transaksi.setModel(model);
         model.addColumn("ID Transaksi");
         model.addColumn("Tanggal");
         model.addColumn("ID Konsumen");
         model.addColumn("ID Meja");
+        model.addColumn("Nama Menu"); 
         model.addColumn("Total");
         model.addColumn("Bayar");
         model.addColumn("Kembali");
     }
     
     public void LihatTransaksi() {
+        // Membersihkan data tabel sebelum memuat ulang
         model.getDataVector().removeAllElements();
         model.fireTableDataChanged();
 
@@ -39,18 +45,20 @@ public class Form_CatatanTransaksi extends javax.swing.JFrame {
             Connection c = Koneksi.KoneksiDb();
             Statement s = c.createStatement();
 
-            String sql = "Select * from transaksi where id_pegawai like '%" + txt_idpegawai.getText() + "%'";
+            String sql = "SELECT * FROM transaksi WHERE id_pegawai LIKE '%" + txt_idpegawai.getText() + "%'";
             ResultSet r = s.executeQuery(sql);
 
             while (r.next()) {
-                Object[] o = new Object[7];
+                // Membuat array objek dengan jumlah 8 sesuai jumlah kolom model
+                Object[] o = new Object[8];
                 o[0] = r.getString("id_transaksi");
                 o[1] = r.getString("tanggal");
                 o[2] = r.getString("id_pelanggan");
                 o[3] = r.getString("id_meja");
-                o[4] = r.getString("total");
-                o[5] = r.getString("bayar");
-                o[6] = r.getString("kembali");
+                o[4] = r.getString("nama_menu"); 
+                o[5] = r.getString("total");
+                o[6] = r.getString("bayar");
+                o[7] = r.getString("kembali");
 
                 model.addRow(o);
             }
@@ -58,6 +66,7 @@ public class Form_CatatanTransaksi extends javax.swing.JFrame {
             s.close();
         } catch (Exception ex) {
             Logger.getLogger(Form_CatatanTransaksi.class.getName()).log(Level.SEVERE, null, ex);
+            javax.swing.JOptionPane.showMessageDialog(null, "Gagal memuat data: " + ex.getMessage());
         }
     }
 
