@@ -23,6 +23,7 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
         model.addColumn("ID Pegawai");
         model.addColumn("ID Pelanggan");
         model.addColumn("ID Meja");
+        model.addColumn("Nama Menu");
         model.addColumn("Total Harga");
         model.addColumn("Total Bayar");
         model.addColumn("Bayar");
@@ -428,7 +429,8 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
                     rs.getString(6),
                     rs.getString(7),
                     rs.getString(8),
-                    rs.getString(9)
+                    rs.getString(9),
+                    rs.getString(10)   
                 });
             }
 

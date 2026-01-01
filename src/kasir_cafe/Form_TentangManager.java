@@ -79,43 +79,36 @@ public class Form_TentangManager extends javax.swing.JFrame {
                 .addContainerGap(36, Short.MAX_VALUE))
         );
 
-        jPanel4.setBackground(new java.awt.Color(255, 102, 51));
+        jPanel4.setBackground(new java.awt.Color(204, 204, 255));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI Emoji", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("BANTUAN");
 
-        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel3.setBackground(new java.awt.Color(0, 0, 0));
         jLabel3.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Aplikasi kasir sebuah Cafe adalah sebuah sistem yang digunakan");
 
         jLabel4.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText(" untuk melakukan Transaksi pembayaran kasir Cafe.");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("Copyright@>>>>>");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/bookmark (1).png"))); // NOI18N
-        jLabel6.setText("yuzmatech");
+        jLabel6.setText("Zahra");
 
         jLabel7.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/bookmark (1).png"))); // NOI18N
-        jLabel7.setText("yuzma852@gmail.com");
+        jLabel7.setText("bebas12@gmail.com");
 
         jLabel8.setFont(new java.awt.Font("Segoe UI Emoji", 0, 18)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icon/bookmark (1).png"))); // NOI18N
-        jLabel8.setText("082127972620");
+        jLabel8.setText("0834589898900");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -139,14 +132,11 @@ public class Form_TentangManager extends javax.swing.JFrame {
                         .addComponent(jLabel4)
                         .addGap(236, 236, 236))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addGap(367, 367, 367))))
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(425, 425, 425)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel6))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel8))
+                        .addGap(330, 330, 330))))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

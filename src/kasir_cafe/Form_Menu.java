@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public final class Form_Menu extends javax.swing.JFrame {
     private final DefaultTableModel model;
-    String id_menu, nama_menu, jenis,harga, stok, id_pegawai;
+    String id_menu, nama_menu, detail_produk, jenis, harga, stok, id_pegawai;
 
     public Form_Menu() {
         initComponents();
@@ -25,6 +25,7 @@ public final class Form_Menu extends javax.swing.JFrame {
         tabel_menu.setModel(model);
         model.addColumn("ID Menu");
         model.addColumn("Nama Menu");
+        model.addColumn("Detail Produk");
         model.addColumn("Kategori");
         model.addColumn("Harga");
         model.addColumn("Stok");
@@ -42,17 +43,18 @@ public final class Form_Menu extends javax.swing.JFrame {
             if (con == null) return; // Keluar jika koneksi gagal
 
             Statement stat = con.createStatement(); // TIDAK perlu casting (Statement) di sini
-            String sql = "Select id_menu, nama_menu, jenis, harga, stok, id_pegawai From menu"; // Sesuaikan urutan kolom
+            String sql = "Select id_menu, nama_menu, detail_produk, jenis, harga, stok, id_pegawai From menu"; // Sesuaikan urutan kolom
 
             try(ResultSet rs = stat.executeQuery(sql)){
                 while(rs.next()){
-                    Object[] obj = new Object[6];
+                    Object[] obj = new Object[7];
                     obj[0] = rs.getString("id_menu");
                     obj[1] = rs.getString("nama_menu");
-                    obj[2] = rs.getString("jenis");
-                    obj[3] = rs.getString("harga");
-                    obj[4] = rs.getString("stok");
-                    obj[5] = rs.getString("id_pegawai");
+                    obj[2] = rs.getString("detail_produk");
+                    obj[3] = rs.getString("jenis");
+                    obj[4] = rs.getString("harga");
+                    obj[5] = rs.getString("stok");
+                    obj[6] = rs.getString("id_pegawai");
                     
                     model.addRow(obj);
                 }
@@ -70,9 +72,10 @@ public final class Form_Menu extends javax.swing.JFrame {
             return;
         }txt_idmenu.setText(""+model.getValueAt(i, 0));
         txt_namamenu.setText(""+model.getValueAt(i, 1));
-        cb_kategori.setSelectedItem(""+model.getValueAt(i, 2));
-        txt_harga.setText(""+model.getValueAt(i, 3));
-        txt_stok.setText(""+model.getValueAt(i, 4));
+        txt_detailproduk.setText(""+model.getValueAt(i, 2));
+        cb_kategori.setSelectedItem(""+model.getValueAt(i, 3));
+        txt_harga.setText(""+model.getValueAt(i, 4));
+        txt_stok.setText(""+model.getValueAt(i, 5));
         btn_hapus.setEnabled(true);
         btn_edit.setEnabled(true);                
     }
@@ -111,6 +114,7 @@ public final class Form_Menu extends javax.swing.JFrame {
     public void LoadData(){
     id_menu = txt_idmenu.getText();
     nama_menu = txt_namamenu.getText();
+    detail_produk = txt_detailproduk.getText();
     jenis = (String)cb_kategori.getSelectedItem();
     
     // Pastikan harga dan stok hanya berisi angka
@@ -131,17 +135,18 @@ public final class Form_Menu extends javax.swing.JFrame {
     try(Connection con = Koneksi.KoneksiDb()){
         if (con == null) return; 
         
-        String sql = "INSERT INTO menu (id_menu, nama_menu, jenis, harga, stok, id_pegawai) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO menu (id_menu, nama_menu, detail_produk, jenis, harga, stok, id_pegawai) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try(PreparedStatement p = con.prepareStatement(sql)){
              p.setString(1, id_menu);
              p.setString(2, nama_menu);
-             p.setString(3, jenis);
+             p.setString(3, detail_produk);
+             p.setString(4, jenis);
              
-             p.setInt(4, Integer.parseInt(harga)); // Konversi String harga menjadi Integer
-             p.setInt(5, Integer.parseInt(stok));  // Konversi String stok menjadi Integer
+             p.setInt(5, Integer.parseInt(harga)); // Konversi String harga menjadi Integer
+             p.setInt(6, Integer.parseInt(stok));  // Konversi String stok menjadi Integer
              
-             p.setString(6, id_pegawai);
+             p.setString(7, id_pegawai);
              
              p.executeUpdate();
         }
@@ -166,19 +171,18 @@ public final class Form_Menu extends javax.swing.JFrame {
     try(Connection con = Koneksi.KoneksiDb()){
         if (con == null) return; 
         
-        String sql = "UPDATE menu SET nama_menu=?, jenis=?, harga=?, stok=?, id_pegawai=? WHERE id_menu=?";
+        String sql = "UPDATE menu SET nama_menu=?, detail_produk=?, jenis=?, harga=?, stok=?, id_pegawai=? WHERE id_menu=?";
         
         try(PreparedStatement p = con.prepareStatement(sql)){
             p.setString(1, nama_menu);
-            p.setString(2, jenis);
+            p.setString(2, detail_produk);
+            p.setString(3, jenis);
             
-            // **Perubahan Inti: Konversi ke Integer**
-            // Menggunakan Integer.parseInt() dan PreparedStatement.setInt()
-            p.setInt(3, Integer.parseInt(harga)); // Konversi String harga menjadi Integer
-            p.setInt(4, Integer.parseInt(stok));  // Konversi String stok menjadi Integer
+            p.setInt(4, Integer.parseInt(harga)); // Konversi String harga menjadi Integer
+            p.setInt(5, Integer.parseInt(stok));  // Konversi String stok menjadi Integer
             
-            p.setString(5, id_pegawai);
-            p.setString(6, id_menu);
+            p.setString(6, id_pegawai);
+            p.setString(7, id_menu);
             
             p.executeUpdate ();
         }
@@ -223,6 +227,7 @@ public final class Form_Menu extends javax.swing.JFrame {
         public void Nonaktif(){
             txt_idmenu.setEnabled(false);
             txt_namamenu.setEnabled(false); 
+            txt_detailproduk.setEnabled(false); 
             cb_kategori.setEnabled(false);
             txt_harga.setEnabled(false);
             txt_stok.setEnabled(false);
@@ -233,9 +238,10 @@ public final class Form_Menu extends javax.swing.JFrame {
         public void Aktif(){
             txt_idmenu.setEnabled(true);
             txt_namamenu.setEnabled(true);
+            txt_detailproduk.setEnabled(true); 
             cb_kategori.setEnabled(true);
             // Ubah dari setEditable(true) menjadi setEnabled(true)
-            txt_harga.setEnabled(true); // <-- PASTIKAN INI TRUE
+            txt_harga.setEnabled(true); 
             txt_stok.setEnabled(true);
             btn_simpan.setEnabled(true);
             btn_tambah.setEnabled(false);
@@ -244,6 +250,7 @@ public final class Form_Menu extends javax.swing.JFrame {
         
         public void Kosongkan(){
             txt_namamenu.setText("");
+            txt_detailproduk.setText("");
             cb_kategori.setSelectedItem("Tidak dipilih");
             txt_harga.setText("");
             txt_stok.setText("");
@@ -261,13 +268,14 @@ public final class Form_Menu extends javax.swing.JFrame {
             
             try(ResultSet rs = st.executeQuery(sql)){
                 while(rs.next()){
-                    Object[] ob = new Object[6];
+                    Object[] ob = new Object[7];
                     ob[0] = rs.getString(1);
                     ob[1] = rs.getString(2);
                     ob[2] = rs.getString(3);
                     ob[3] = rs.getString(4);
                     ob[4] = rs.getString(5);
                     ob[5] = rs.getString(6);
+                    ob[6] = rs.getString(7);
                     
                     model.addRow(ob);
                 }
@@ -299,6 +307,9 @@ public final class Form_Menu extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tabel_menu = new javax.swing.JTable();
         lb_id = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        txt_detailproduk = new javax.swing.JTextField();
+        btn_detailproduk = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         lb_keluar = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -422,13 +433,13 @@ public final class Form_Menu extends javax.swing.JFrame {
 
         tabel_menu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "ID Menu", "Nama Menu", "Kategori", "Harga", "Stok"
+                "ID Menu", "Nama Menu", "Detail Produk", "Kategori", "Harga", "Stok"
             }
         ));
         tabel_menu.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -441,34 +452,37 @@ public final class Form_Menu extends javax.swing.JFrame {
         lb_id.setForeground(new java.awt.Color(255, 255, 255));
         lb_id.setText("id");
 
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel8.setText("Detail Produk :");
+        jLabel8.setToolTipText("");
+
+        txt_detailproduk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_detailprodukActionPerformed(evt);
+            }
+        });
+        txt_detailproduk.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_detailprodukKeyTyped(evt);
+            }
+        });
+
+        btn_detailproduk.setText("Detail Produk");
+        btn_detailproduk.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btn_detailprodukMouseClicked(evt);
+            }
+        });
+        btn_detailproduk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_detailprodukActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(138, 138, 138)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel3))
-                .addGap(17, 17, 17)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_harga, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                            .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txt_idmenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cb_kategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(300, 300, 300))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(txt_stok, javax.swing.GroupLayout.PREFERRED_SIZE, 482, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -489,23 +503,64 @@ public final class Form_Menu extends javax.swing.JFrame {
                                 .addComponent(txt_cari, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(lb_cari))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 525, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(156, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(138, 138, 138)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(17, 17, 17)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txt_harga, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(cb_kategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, Short.MAX_VALUE)))
+                                        .addGap(300, 300, 300))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(txt_stok, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(87, 87, 87)
+                                        .addComponent(btn_detailproduk)
+                                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, 461, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txt_idmenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txt_detailproduk, javax.swing.GroupLayout.PREFERRED_SIZE, 459, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lb_id)
-                .addGap(33, 33, 33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txt_idmenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
-                .addGap(26, 26, 26)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
                 .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txt_namamenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(txt_detailproduk))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cb_kategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
@@ -516,7 +571,8 @@ public final class Form_Menu extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(txt_stok, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt_stok, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_detailproduk, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_tambah)
@@ -529,7 +585,7 @@ public final class Form_Menu extends javax.swing.JFrame {
                     .addComponent(lb_cari))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addGap(87, 87, 87))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 204, 102));
@@ -632,7 +688,7 @@ public final class Form_Menu extends javax.swing.JFrame {
                     .addComponent(lb_datameja)
                     .addComponent(lb_datamenu)
                     .addComponent(jLabel10))
-                .addContainerGap(122, Short.MAX_VALUE))
+                .addContainerGap(113, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -896,6 +952,26 @@ public final class Form_Menu extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_lb_keluarMouseClicked
 
+    private void txt_detailprodukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_detailprodukActionPerformed
+        
+    }//GEN-LAST:event_txt_detailprodukActionPerformed
+
+    private void txt_detailprodukKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_detailprodukKeyTyped
+        if(Character.isDigit(evt.getKeyChar())){
+            evt.consume();
+            JOptionPane.showMessageDialog(null, "Pada kolom detail produk hanya bisa memasukan karakter");
+        }
+    }//GEN-LAST:event_txt_detailprodukKeyTyped
+
+    private void btn_detailprodukActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailprodukActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn_detailprodukActionPerformed
+
+    private void btn_detailprodukMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_detailprodukMouseClicked
+         new Form_DetailProduk().show();
+        this.dispose();
+    }//GEN-LAST:event_btn_detailprodukMouseClicked
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -929,6 +1005,7 @@ public final class Form_Menu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btn_detailproduk;
     private javax.swing.JButton btn_edit;
     private javax.swing.JButton btn_hapus;
     private javax.swing.JButton btn_simpan;
@@ -942,6 +1019,7 @@ public final class Form_Menu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -957,6 +1035,7 @@ public final class Form_Menu extends javax.swing.JFrame {
     private javax.swing.JLabel lb_tentang;
     private javax.swing.JTable tabel_menu;
     private javax.swing.JTextField txt_cari;
+    private javax.swing.JTextField txt_detailproduk;
     private javax.swing.JTextField txt_harga;
     private javax.swing.JTextField txt_idmenu;
     private javax.swing.JTextField txt_namamenu;

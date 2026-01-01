@@ -447,7 +447,7 @@ public class Form_LaporanTransaksi extends javax.swing.JFrame {
                     .addComponent(lb_laporanpendapatan)
                     .addComponent(lb_logaktivitas)
                     .addComponent(lb_tentang))
-                .addGap(118, 118, 118)
+                .addGap(121, 121, 121)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel2)
