@@ -298,32 +298,38 @@ public class Form_ProdukTerlaris extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_lihatActionPerformed
 
     private void btn_caritanggalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_caritanggalActionPerformed
-       model.getDataVector().removeAllElements();
-        model.fireTableDataChanged();
+       if (jc_daritanggal.getDate() == null || jc_daritanggal2.getDate() == null) {
+        javax.swing.JOptionPane.showMessageDialog(null, "Pilih rentang tanggal terlebih dahulu!");
+        return;
+    }
 
-        SimpleDateFormat sDate = new SimpleDateFormat("YYYY-MM-dd");
-        String date1 = sDate.format(jc_daritanggal.getDate());
-        String date2 = sDate.format(jc_daritanggal2.getDate());
-        try {
-            Connection c = Koneksi.KoneksiDb();
-            String sql = "Select * produk_terlaris Where tanggal Between  '"+date1+"' And '"+date2+"'";
-            Statement stat = c.createStatement();
-            ResultSet rs = stat.executeQuery(sql);
+    model.setRowCount(0); // Cara lebih efisien menghapus data tabel
 
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getString(1),
-                    rs.getString(2),
-                    
-                });
-            }
-            tabel_produkterlaris.setModel(model);
-        } catch (Exception e) {
-            System.out.println("Cari Data Error");
-        }finally{
-            jc_daritanggal.setDate(null);
-            jc_daritanggal2.setDate(null);
+    SimpleDateFormat sDate = new SimpleDateFormat("yyyy-MM-dd"); // yyyy kecil
+    String date1 = sDate.format(jc_daritanggal.getDate());
+    String date2 = sDate.format(jc_daritanggal2.getDate());
+
+    try {
+        Connection c = Koneksi.KoneksiDb();
+        // Query disesuaikan untuk menjumlahkan data (SUM) dalam rentang tanggal
+        String sql = "SELECT nama_menu, SUM(jumlah) AS total_jumlah " +
+                     "FROM produk_terlaris " +
+                     "WHERE waktu BETWEEN '" + date1 + " 00:00:00' AND '" + date2 + " 23:59:59' " +
+                     "GROUP BY nama_menu " +
+                     "ORDER BY total_jumlah DESC"; // Urutkan dari yang terbanyak
+
+        Statement stat = c.createStatement();
+        ResultSet rs = stat.executeQuery(sql);
+
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("nama_menu"),
+                rs.getString("total_jumlah")
+            });
         }
+    } catch (Exception e) {
+        System.out.println("Cari Data Error: " + e.getMessage());
+    }
     }//GEN-LAST:event_btn_caritanggalActionPerformed
 
     private void btn_keluarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_keluarMouseClicked

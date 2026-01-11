@@ -71,6 +71,7 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
         tabel_transaksi = new javax.swing.JTable();
         jLabel12 = new javax.swing.JLabel();
         txt_pendapatan = new javax.swing.JTextField();
+        btn_grafik = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -173,6 +174,13 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
 
         txt_pendapatan.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
+        btn_grafik.setText("Grafik");
+        btn_grafik.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btn_grafikMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -198,12 +206,14 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
                                 .addGap(28, 28, 28)
                                 .addComponent(btn_caritanggal))
                             .addComponent(rb_daritanggal)))
-                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(jPanel4Layout.createSequentialGroup()
-                            .addComponent(jLabel12)
-                            .addGap(18, 18, 18)
-                            .addComponent(txt_pendapatan))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 681, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(btn_grafik, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 681, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel12)
+                                .addGap(18, 18, 18)
+                                .addComponent(txt_pendapatan)))))
                 .addContainerGap(49, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -230,9 +240,11 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(txt_pendapatan, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(41, 41, 41)
+                .addGap(18, 18, 18)
+                .addComponent(btn_grafik)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(105, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -466,7 +478,8 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
                     rs.getString(6),
                     rs.getString(7),
                     rs.getString(8),
-                    rs.getString(9)
+                    rs.getString(9),
+                    rs.getString(10)
                 });
             }
             tabel_transaksi.setModel(model);
@@ -594,6 +607,11 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_lb_keluarMouseClicked
 
+    private void btn_grafikMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_grafikMouseClicked
+        new Form_Grafik().show();
+        this.dispose();
+    }//GEN-LAST:event_btn_grafikMouseClicked
+
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -630,6 +648,7 @@ public class Form_LaporanPendapatan extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_caritanggal;
+    private javax.swing.JButton btn_grafik;
     private javax.swing.JButton btn_lihat;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel11;
